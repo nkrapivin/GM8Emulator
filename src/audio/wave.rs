@@ -11,6 +11,7 @@ const FORMAT_MULAW: u16 = 0x0007;
 const FORMAT_EXTENSIBLE: u16 = 0xFFFE;
 
 /// Header data contained in the format RIFF chunk.
+#[derive(Debug)]
 pub struct WaveHeader {
     audio_format: WaveFormat,
     channels: u16,
@@ -21,6 +22,7 @@ pub struct WaveHeader {
 }
 
 /// Format of the bytes in the data RIFF chunk.
+#[derive(Debug)]
 pub enum WaveFormat {
     PCM,
     Float,
@@ -44,7 +46,7 @@ impl TryFrom<u16> for WaveFormat {
 
 /// Parses file header and returns that & how many bytes to read from the data chunk.
 /// The reader's position will be at the start of the data chunk's bytes.
-fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, usize)> {
+pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, usize)> {
     // generic bad data return type
     let invalid_data = || io::ErrorKind::InvalidData.into();
 
