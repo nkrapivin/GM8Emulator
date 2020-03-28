@@ -3,6 +3,7 @@
 mod action;
 mod asset;
 mod atlas;
+mod audio;
 mod background;
 mod game;
 mod gml;
