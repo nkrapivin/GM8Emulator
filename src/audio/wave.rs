@@ -26,8 +26,8 @@ pub struct WaveHeader {
 pub enum WaveFormat {
     PCM,
     Float,
-    G711A, // A-law
-    G711U, // μ-law
+    Alaw,  // G.711 A-law
+    Mulaw, // G.711 μ-law
 }
 
 impl TryFrom<u16> for WaveFormat {
@@ -37,8 +37,8 @@ impl TryFrom<u16> for WaveFormat {
         Ok(match x {
             FORMAT_PCM => Self::PCM,
             FORMAT_IEEE_FLOAT => Self::Float,
-            FORMAT_ALAW => Self::G711A,
-            FORMAT_MULAW => Self::G711U,
+            FORMAT_ALAW => Self::Alaw,
+            FORMAT_MULAW => Self::Mulaw,
             _ => return Err(()),
         })
     }
