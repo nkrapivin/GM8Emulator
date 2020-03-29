@@ -89,14 +89,14 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
     }
 }
 
-pub fn bad_alaw(input: &[i16], output: &mut [i16]) {
+pub fn alaw_expand(input: &[u8], output: &mut [i16]) {
     for (x, out) in input.iter().zip(output.iter_mut()) {
         // re-toggle toggled bits, remove sign bit
         let value = (*x ^ 0b0101_0101) & 0b0111_1111;
 
         // extract exponent, mantissa
         let exponent = value >> 4;
-        let mut mantissa = value & 0b1111;
+        let mut mantissa = (value & 0b1111) as i16;
 
         // add leading 1 if exp > 0
         if exponent > 0 {
@@ -109,6 +109,13 @@ pub fn bad_alaw(input: &[i16], output: &mut [i16]) {
         // left shift according to exponent
         if exponent > 1 {
             mantissa = mantissa << (exponent - 1);
+        }
+
+        // sign extend two's complement 13-bit msb to 16-bit
+        if mantissa & 0b1000_0000 != 0 {
+            mantissa = -1 & (mantissa >> 3);
+        } else {
+            mantissa >>= 3;
         }
 
         // invert if negative sample, write to output
