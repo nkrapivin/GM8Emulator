@@ -50,10 +50,10 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
     // generic bad data return type
     let invalid_data = || io::ErrorKind::InvalidData.into();
 
-    let riff = rdr.read_u32_be()?;
+    let riff = rdr.read_u32_be()?.to_be_bytes();
     let _filesize = rdr.read_u32_le()? as usize + 8; // TODO: maybe verify/return this...
-    let wave = rdr.read_u32_be()?;
-    if riff != u32::from_be_bytes(*b"RIFF") || wave != u32::from_be_bytes(*b"WAVE") {
+    let wave = rdr.read_u32_be()?.to_be_bytes();
+    if &riff != b"RIFF" || &wave != b"WAVE" {
         return Err(invalid_data());
     }
 
