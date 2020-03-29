@@ -88,3 +88,30 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
         }
     }
 }
+
+pub fn bad_alaw(input: &[i16], output: &mut [i16]) {
+    for (x, out) in input.iter().zip(output.iter_mut()) {
+        // re-toggle toggled bits, remove sign bit
+        let value = (*x ^ 0b0101_0101) & 0b0111_1111;
+
+        // extract exponent, mantissa
+        let exponent = value >> 4;
+        let mut mantissa = value & 0b1111;
+
+        // add leading 1 if exp > 0
+        if exponent > 0 {
+            mantissa += 0b1_0000;
+        }
+
+        // left justify, 1/2 quantization step
+        mantissa = (mantissa << 4) + 0b1000;
+
+        // left shift according to exponent
+        if exponent > 1 {
+            mantissa = mantissa << (exponent - 1);
+        }
+
+        // invert if negative sample, write to output
+        *out = if *x > i8::max_value() as _ { mantissa } else { -mantissa };
+    }
+}
