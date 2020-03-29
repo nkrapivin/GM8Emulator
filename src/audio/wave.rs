@@ -54,7 +54,7 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
     let _filesize = rdr.read_u32_le()? as usize + 8; // TODO: maybe verify/return this...
     let wave = rdr.read_u32_be()?.to_be_bytes();
     if &riff != b"RIFF" || &wave != b"WAVE" {
-        return Err(invalid_data());
+        return Err(invalid_data())
     }
 
     let mut fmt: Option<WaveHeader> = None;
@@ -65,7 +65,7 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
             // audio format
             b"fmt " => {
                 if size < 16 {
-                    return Err(invalid_data());
+                    return Err(invalid_data())
                 }
                 let audio_format = WaveFormat::try_from(rdr.read_u16_le()?).map_err(|_| invalid_data())?;
                 let channels = rdr.read_u16_le()?;
@@ -76,9 +76,11 @@ pub fn parse(rdr: &mut (impl io::Read + io::Seek)) -> io::Result<(WaveHeader, us
                 rdr.seek(io::SeekFrom::Current(size as i64 - 16))?;
                 fmt = Some(WaveHeader { audio_format, channels, sample_rate, byte_rate, block_align, bits_per_sample });
             },
-            b"data" => match fmt {
-                Some(header) => break Ok((header, size as usize)),
-                None => return Err(invalid_data()),
+            b"data" => {
+                break match fmt {
+                    Some(header) => Ok((header, size as usize)),
+                    None => Err(invalid_data()),
+                }
             },
             _ => {
                 rdr.seek(io::SeekFrom::Current(size as i64))?;
