@@ -1,3 +1,3 @@
 //! Audio parsing and sound system.
 
-mod wave;
+pub mod wave;

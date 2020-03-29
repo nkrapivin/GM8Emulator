@@ -111,13 +111,6 @@ pub fn alaw_expand(input: &[u8], output: &mut [i16]) {
             mantissa = mantissa << (exponent - 1);
         }
 
-        // sign extend two's complement 13-bit msb to 16-bit
-        if mantissa & 0b1000_0000 != 0 {
-            mantissa = -1 & (mantissa >> 3);
-        } else {
-            mantissa >>= 3;
-        }
-
         // invert if negative sample, write to output
         *out = if *x > i8::max_value() as _ { mantissa } else { -mantissa };
     }
