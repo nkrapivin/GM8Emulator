@@ -112,6 +112,7 @@ pub fn alaw_expand(input: &[u8], output: &mut [i16]) {
         }
 
         // invert if negative sample, write to output
+        // the output is 13-bit pcm in most significant bits, aka distributed to 16-bit
         *out = if *x > i8::max_value() as _ { mantissa } else { -mantissa };
     }
 }
