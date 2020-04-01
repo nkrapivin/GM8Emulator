@@ -51,6 +51,7 @@ test_script:
       cargo run --target %TARGET% &&
       cargo run --target %TARGET% --release
     )
+  - 7z a myapp.zip target\x86_64-pc-windows-gnu\debug\*.*
 
 ## We don't auto-deploy for now.
 # before_deploy:
@@ -92,3 +93,8 @@ notifications:
 
 # Building is done in the test phase, so we disable Appveyor's build phase.
 build: false
+
+
+artifacts:
+  - path: myapp.zip
+    name: MyApp
